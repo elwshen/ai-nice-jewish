@@ -1,5 +1,7 @@
-const express = require("express");
-const OpenAIApi = require("openai");
+import express from "express";
+import path from "path";
+import OpenAI from 'openai';
+import { fileURLToPath } from "url";
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -13,10 +15,14 @@ const systemPrompts = [
   },
 ];
 
-const openai = new OpenAIApi({
+const openai = new OpenAI({
   apiKey: "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",
   organization: "org-UB5CSjHVksfT9TnoeLpQYOhZ",
 });
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.resolve(__dirname, "../client/build")));
 
 app.get("/chat/prompt/:input", async (req, res) => {
   const prompt = req.params["input"];
@@ -36,10 +42,10 @@ app.get("/chat/prompt/:input", async (req, res) => {
   return res.json(reply);
 });
 
-app.get("/api", (req, res) => {
-  res.json({ message: "Hello from server!" });
-});
-
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
+});
+
+app.get("*", (_req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/build", "index.html"));
 });
