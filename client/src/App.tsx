@@ -42,7 +42,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+  <div className="App">
       <div className="messages">
         {messages.map((message, index) => (
           <div
