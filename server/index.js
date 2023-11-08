@@ -1,12 +1,19 @@
 import express from "express";
 import path from "path";
-import OpenAI from 'openai';
+import OpenAI from "openai";
 import { fileURLToPath } from "url";
+
+const MAX_MESSAGE_HISTORY_LENGTH = 15;
+const MAX_TOKENS = 70;
 
 const PORT = process.env.PORT || 3001;
 const app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.resolve(__dirname, "../client/build")));
+
 var messageHistory = [];
-const MAX_MESSAGE_HISTORY_LENGTH = 15;
 const systemPrompts = [
   {
     role: "system",
@@ -16,13 +23,9 @@ const systemPrompts = [
 ];
 
 const openai = new OpenAI({
-  apiKey: "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",
+  apiKey: "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",
   organization: "org-UB5CSjHVksfT9TnoeLpQYOhZ",
 });
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.resolve(__dirname, "../client/build")));
 
 app.get("/chat/prompt/:input", async (req, res) => {
   const prompt = req.params["input"];
@@ -30,7 +33,7 @@ app.get("/chat/prompt/:input", async (req, res) => {
   const response = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
     messages: systemPrompts.concat(messageHistory),
-    max_tokens: 70,
+    max_tokens: MAX_TOKENS,
   });
   var reply = response.choices[0].message.content;
   messageHistory.push({ role: "assistant", content: reply });

@@ -17,6 +17,15 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [AITyping, setAITyping] = useState<boolean>(false);
 
+  const scrollToBottom = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollTop = element.scrollHeight;
+    }
+  };
+
+  React.useEffect(() => scrollToBottom("messages-box"), [messages]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAITyping(true);
@@ -42,8 +51,9 @@ function App() {
   };
 
   return (
-  <div className="App">
-      <div className="messages">
+    <div className="App">
+      {/* <div className="avatar">avatar</div> */}
+      <div className="messages" id="messages-box">
         {messages.map((message, index) => (
           <div
             className={`message-bubble ${

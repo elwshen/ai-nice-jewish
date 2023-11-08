@@ -23,12 +23,20 @@ input {
   align-self: flex-start;
 }
 
+.avatar {
+  max-height: calc(35vh);
+  min-height: calc(35vh);
+}
+
 .messages {
   display: flex;
   flex-direction: column;
   max-height: calc(75vh);
   min-height: calc(75vh);
   overflow: scroll;
+  margin-top: 15px;
+  /* border: 1px solid rgb(189, 189, 222);
+  border-radius: 8px; */
 }
 
 .chat-field {
