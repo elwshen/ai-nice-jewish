@@ -16,6 +16,7 @@ function App() {
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [AITyping, setAITyping] = useState<boolean>(false);
+  const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
 
   const scrollToBottom = (id: string) => {
     const element = document.getElementById(id);
@@ -32,6 +33,20 @@ function App() {
         setMessages([{ role: Role.Assistant, content: res }]);
       });
   }, []);
+
+  window.onresize = function (_event) {
+    setWindowHeight(window.innerHeight);
+  };
+  React.useEffect(() => {
+    const logo = document.getElementById("logo");
+    const footer = document.getElementById("chat-field");
+    const logoHeight = logo ? logo.offsetHeight : 0;
+    const footerHeight = footer ? footer.offsetHeight : 0;
+    document.documentElement.style.setProperty(
+      "--messages-height",
+      `${windowHeight - (logoHeight + footerHeight + 28)}px`
+    );
+  }, [windowHeight]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +75,7 @@ function App() {
   return (
     <div className="App">
       <center>
-        <img className="logo" src="../assets/njlogo.png"></img>
+        <img id="logo" className="logo" src="../assets/njlogo.png"></img>
       </center>
       <div className="messages" id="messages-box">
         {messages.map((message, index) => (
@@ -81,7 +96,7 @@ function App() {
           </div>
         ) : null}
       </div>
-      <div className="chat-field">
+      <div id="chat-field" className="chat-field">
         <form onSubmit={handleSubmit}>
           <input
             autoComplete="off"
@@ -102,17 +117,16 @@ function App() {
         </form>
         <div className="waitlist-link-container">
           <div className="disclaimer">
-            Like any chatbot, I can make mistakes.
+            <b>Important:</b> This is new tech, so please be nice and aware that
+            it makes mistakes.
           </div>
-          <div>
-            <a
-              href="https://8xd8buw00js.typeform.com/nicejewish18"
-              target="_blank"
-              className="waitlist-link"
-            >
-              Join the Nice Jewish community.
-            </a>
-          </div>
+          <a
+            href="https://8xd8buw00js.typeform.com/nicejewish18"
+            target="_blank"
+            className="waitlist-link"
+          >
+            Join the Nice Jewish waitlist
+          </a>
         </div>
       </div>
     </div>

@@ -1,3 +1,8 @@
+
+:root {
+  --messages-height: 50vh;
+}
+
 .App {
   display: flex;
   flex-direction: column;
@@ -19,6 +24,7 @@ input {
   padding: 8px;
   align-self: flex-end;
   max-width: 60%;
+  margin: 2px;
 }
 
 .ai-message-bubble {
@@ -34,10 +40,13 @@ input {
 .messages {
   display: flex;
   padding: 7px;
-  /* width: 100%; */
   flex-direction: column;
-  max-height: calc(100vh - 300px);
-  min-height: calc(100vh - 300px);
+  /* max-height: calc(100vh - 300px);
+  min-height: calc(100vh - 300px); */
+  max-height: var(--messages-height);
+  min-height: var(--messages-height);
+  /* height: 350px; */
+  /* flex: 1; */
   overflow: scroll;
   /* margin-top: 15px; */
   /* border: 1px solid rgb(189, 189, 222);
@@ -48,7 +57,6 @@ input {
   position: absolute;
   bottom: 10px;
   padding: 12px;
-  
   /* align-self: flex-end; */
   /* margin: 10px; */
   /* display: flex; */
@@ -145,6 +153,7 @@ input {
   text-align: center;
   color: rgb(54, 54, 54);
   text-decoration: underline;
+  font-size: 14px;
 }
 
 .waitlist-link-container {
