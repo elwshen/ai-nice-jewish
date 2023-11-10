@@ -2,19 +2,25 @@ import React from "react";
 import "./App.css";
 import { useState } from "react";
 
-enum Role {
-  User,
-  Assistant,
-}
+// enum Role {
+//   User,
+//   Assistant,
+// }
+
+const MAX_MESSAGE_HISTORY_LENGTH = 5;
 
 interface Message {
-  role: Role;
+  role: string;
   content: string;
 }
+const INITIAL_ASSISTANT_PROMPT =
+  "Hi, I'm the Nice Jewish AI. You can ask me anything about Judaism and I’ll do my best to answer you.";
 
 function App() {
   const [input, setInput] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "assistant", content: INITIAL_ASSISTANT_PROMPT },
+  ]);
   const [AITyping, setAITyping] = useState<boolean>(false);
   const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
 
@@ -26,17 +32,25 @@ function App() {
   };
 
   React.useEffect(() => scrollToBottom("messages-box"), [messages]);
-  React.useEffect(() => {
-    fetch("/chat/initial-prompt")
-      .then((res) => res.json())
-      .then((res) => {
-        setMessages([{ role: Role.Assistant, content: res }]);
-      });
-  }, []);
 
   window.onresize = function (_event) {
     setWindowHeight(window.innerHeight);
   };
+
+  const processMessagesForRequest = (
+    messageHistory: Message[],
+    query: string
+  ) => {
+    if (messageHistory.length > MAX_MESSAGE_HISTORY_LENGTH) {
+      messageHistory = messageHistory.slice(
+        messageHistory.length - MAX_MESSAGE_HISTORY_LENGTH
+      );
+    }
+    return encodeURIComponent(
+      JSON.stringify(messageHistory.concat([{ role: "user", content: query }]))
+    );
+  };
+
   React.useEffect(() => {
     const logo = document.getElementById("logo");
     const footer = document.getElementById("chat-field");
@@ -53,16 +67,16 @@ function App() {
     setAITyping(true);
     const query = input;
     setInput("");
-    setMessages(messages.concat([{ role: Role.User, content: query }]));
+    setMessages(messages.concat([{ role: "user", content: query }]));
 
     try {
-      await fetch(`/chat/prompt/${encodeURIComponent(query)}`)
+      await fetch(`/chat/${processMessagesForRequest(messages, query)}`)
         .then((res) => res.json())
         .then((res) => {
           setMessages(
             messages.concat([
-              { role: Role.User, content: query },
-              { role: Role.Assistant, content: res },
+              { role: "user", content: query },
+              { role: "assistant", content: res },
             ])
           );
           setAITyping(false);
@@ -81,7 +95,7 @@ function App() {
         {messages.map((message, index) => (
           <div
             className={`message-bubble ${
-              message.role == Role.Assistant ? "ai-message-bubble" : null
+              message.role == "assistant" ? "ai-message-bubble" : null
             }`}
             key={`${index}_message`}
           >

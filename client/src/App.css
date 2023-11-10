@@ -93,7 +93,8 @@ input {
   height: 20px;
   border-radius: 10px;
   background-color: rgba(193, 239, 227, 0.52);
-  /* margin: 10px; */
+  margin-top: 10px;
+  margin-bottom: 10px;
   transform: scale(0);
   animation: overall-scale 8s infinite;
   align-items: center;
