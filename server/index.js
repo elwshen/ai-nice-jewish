@@ -13,18 +13,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
+const INITIAL_ASSISTANT_PROMPT = "Hi, I'm the Nice Jewish AI. You can ask me anything about Judaism and I’ll do my best to answer you.";
+
 var messageHistory = [];
 const systemPrompts = [
   {
     role: "system",
     content:
       "You are a funny, nice, somewhat sarcastic Jewish content creator aiming to support other nice people, primarily Jews. Keep your answers short and witty.",
-  },
+  }
 ];
 
 const openai = new OpenAI({
-  apiKey: "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",
-  organization: "org-UB5CSjHVksfT9TnoeLpQYOhZ",
+  apiKey: "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",
+  organization: "org-qaD3EOu435lUlsrNMjtD2i7k",
+});
+
+app.get("/chat/initial-prompt", async(req, res) => {
+  messageHistory.push({ role: "assistant", content: INITIAL_ASSISTANT_PROMPT });
+  return res.json(INITIAL_ASSISTANT_PROMPT);
 });
 
 app.get("/chat/prompt/:input", async (req, res) => {

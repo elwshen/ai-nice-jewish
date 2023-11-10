@@ -25,6 +25,13 @@ function App() {
   };
 
   React.useEffect(() => scrollToBottom("messages-box"), [messages]);
+  React.useEffect(() => {
+    fetch("/chat/initial-prompt")
+      .then((res) => res.json())
+      .then((res) => {
+        setMessages([{ role: Role.Assistant, content: res }]);
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +59,9 @@ function App() {
 
   return (
     <div className="App">
-      {/* <div className="avatar">avatar</div> */}
+      <center>
+        <img className="logo" src="../assets/njlogo.png"></img>
+      </center>
       <div className="messages" id="messages-box">
         {messages.map((message, index) => (
           <div
@@ -91,6 +100,20 @@ function App() {
             Send
           </button>
         </form>
+        <div className="waitlist-link-container">
+          <div className="disclaimer">
+            Like any chatbot, I can make mistakes.
+          </div>
+          <div>
+            <a
+              href="https://8xd8buw00js.typeform.com/nicejewish18"
+              target="_blank"
+              className="waitlist-link"
+            >
+              Join the Nice Jewish community.
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
