@@ -2,11 +2,6 @@ import React from "react";
 import "./App.css";
 import { useState } from "react";
 
-// enum Role {
-//   User,
-//   Assistant,
-// }
-
 const MAX_MESSAGE_HISTORY_LENGTH = 5;
 
 interface Message {
