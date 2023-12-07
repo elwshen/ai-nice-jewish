@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import { useState } from "react";
+import axios, { ResponseType } from "axios";
 
 const MAX_MESSAGE_HISTORY_LENGTH = 5;
 
@@ -9,7 +10,7 @@ interface Message {
   content: string;
 }
 const INITIAL_ASSISTANT_PROMPT =
-  "Hi, I'm the Nice Jewish AI. You can ask me anything about Judaism and I’ll do my best to answer you.";
+  "Hi, I'm the Nice Jewish Bubbe. You can ask me anything about Judaism and I’ll do my best to answer you.";
 
 function App() {
   const [input, setInput] = useState<string>("");
@@ -18,6 +19,7 @@ function App() {
   ]);
   const [AITyping, setAITyping] = useState<boolean>(false);
   const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
+  const [audioUrl, setAudioUrl] = useState<string>("");
 
   const scrollToBottom = (id: string) => {
     const element = document.getElementById(id);
@@ -47,13 +49,13 @@ function App() {
   };
 
   React.useEffect(() => {
-    const logo = document.getElementById("logo");
     const footer = document.getElementById("chat-field");
-    const logoHeight = logo ? logo.offsetHeight : 0;
+    const videoPlayer = document.getElementById("talk-video");
+    const videoHeight = videoPlayer ? videoPlayer.offsetHeight : 0;
     const footerHeight = footer ? footer.offsetHeight : 0;
     document.documentElement.style.setProperty(
       "--messages-height",
-      `${windowHeight - (logoHeight + footerHeight + 28)}px`
+      `${windowHeight - (videoHeight + footerHeight + 48)}px`
     );
   }, [windowHeight]);
 
@@ -67,7 +69,8 @@ function App() {
     try {
       await fetch(`/chat/${processMessagesForRequest(messages, query)}`)
         .then((res) => res.json())
-        .then((res) => {
+        .then(async (res) => {
+          await textToSpeech(res);
           setMessages(
             messages.concat([
               { role: "user", content: query },
@@ -81,11 +84,67 @@ function App() {
     }
   };
 
+  const textToSpeech = async (inputText: string) => {
+    const options = {
+      method: "POST",
+      url: "https://api.elevenlabs.io/v1/text-to-speech/WruJHDAF1bWs03CrrotN",
+      headers: {
+        accept: "audio/mpeg",
+        "xi-api-key": process.env.REACT_APP_ELEVEN_API_KEY,
+        "Content-Type": "application/json",
+      },
+      data: {
+        text: inputText,
+      },
+      responseType: "arraybuffer" as ResponseType,
+    };
+    const speechDetails = await axios.request(options);
+    const data = speechDetails.data;
+    const blob = new Blob([data], { type: "audio/mpeg" });
+    const url = URL.createObjectURL(blob);
+    setAudioUrl(url);
+  };
+
+  React.useEffect(() => {
+    const audioPlayer = document.getElementById("audio");
+    if (audioPlayer) {
+      (audioPlayer as HTMLAudioElement).load();
+      (audioPlayer as HTMLAudioElement).play();
+    }
+  }, [audioUrl]);
+
+  const onAudioPlay = () => {
+    const videoPlayer = document.getElementById("talk-video");
+    if (videoPlayer) {
+      (videoPlayer as HTMLVideoElement).play();
+    }
+  };
+
+  const onAudioPause = () => {
+    const videoPlayer = document.getElementById("talk-video");
+    if (videoPlayer) {
+      (videoPlayer as HTMLVideoElement).pause();
+    }
+  };
+
   return (
     <div className="App">
       <center>
-        <img id="logo" className="logo" src="../assets/njlogo.png"></img>
+        <video
+          id="talk-video"
+          height="150"
+          loop={true}
+          playsInline
+          autoPlay
+        >
+          <source src="/assets/bubbie3.mp4" />
+        </video>
       </center>
+      {audioUrl && (
+        <audio autoPlay id="audio" onPlay={onAudioPlay} onPause={onAudioPause}>
+          <source id="audio-src" src={audioUrl} type="audio/mpeg"></source>
+        </audio>
+      )}
       <div className="messages" id="messages-box">
         {messages.map((message, index) => (
           <div
