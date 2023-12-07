@@ -20,6 +20,7 @@ function App() {
   const [AITyping, setAITyping] = useState<boolean>(false);
   const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
   const [audioUrl, setAudioUrl] = useState<string>("");
+  const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
 
   const scrollToBottom = (id: string) => {
     const element = document.getElementById(id);
@@ -117,6 +118,7 @@ function App() {
     const videoPlayer = document.getElementById("talk-video");
     if (videoPlayer) {
       (videoPlayer as HTMLVideoElement).play();
+      setVideoPlaying(true);
     }
   };
 
@@ -124,6 +126,7 @@ function App() {
     const videoPlayer = document.getElementById("talk-video");
     if (videoPlayer) {
       (videoPlayer as HTMLVideoElement).pause();
+      setVideoPlaying(false);
     }
   };
 
@@ -135,9 +138,9 @@ function App() {
           height="150"
           loop={true}
           playsInline
-          autoPlay
+          poster={"/assets/bubbie4.png"}
         >
-          <source src="/assets/bubbie3.mp4" />
+          <source src="/assets/bubbie4.mp4" />
         </video>
       </center>
       {audioUrl && (
