@@ -1,7 +1,9 @@
 import React from "react";
 import "./App.css";
 import { useState } from "react";
-import axios, { ResponseType } from "axios";
+import { Avatar } from "./components/Avatar";
+import { getTextToSpeechUrl } from "./textToSpeech";
+import { useMessagesBoxHeight } from "./useMessagesBoxHeight";
 
 const MAX_MESSAGE_HISTORY_LENGTH = 5;
 
@@ -13,27 +15,20 @@ const INITIAL_ASSISTANT_PROMPT =
   "Hi, I'm the Nice Jewish Bubbe. You can ask me anything about Judaism and I’ll do my best to answer you.";
 
 function App() {
+  useMessagesBoxHeight();
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: INITIAL_ASSISTANT_PROMPT },
   ]);
   const [AITyping, setAITyping] = useState<boolean>(false);
-  const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
   const [audioUrl, setAudioUrl] = useState<string>("");
-  const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
-
   const scrollToBottom = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollTop = element.scrollHeight;
     }
   };
-
   React.useEffect(() => scrollToBottom("messages-box"), [messages]);
-
-  window.onresize = function (_event) {
-    setWindowHeight(window.innerHeight);
-  };
 
   const processMessagesForRequest = (
     messageHistory: Message[],
@@ -49,17 +44,6 @@ function App() {
     );
   };
 
-  React.useEffect(() => {
-    const footer = document.getElementById("chat-field");
-    const videoPlayer = document.getElementById("talk-video");
-    const videoHeight = videoPlayer ? videoPlayer.offsetHeight : 0;
-    const footerHeight = footer ? footer.offsetHeight : 0;
-    document.documentElement.style.setProperty(
-      "--messages-height",
-      `${windowHeight - (videoHeight + footerHeight + 48)}px`
-    );
-  }, [windowHeight]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAITyping(true);
@@ -71,7 +55,7 @@ function App() {
       await fetch(`/chat/${processMessagesForRequest(messages, query)}`)
         .then((res) => res.json())
         .then(async (res) => {
-          await textToSpeech(res);
+          setAudioUrl(await getTextToSpeechUrl(res));
           setMessages(
             messages.concat([
               { role: "user", content: query },
@@ -85,69 +69,9 @@ function App() {
     }
   };
 
-  const textToSpeech = async (inputText: string) => {
-    const options = {
-      method: "POST",
-      url: "https://api.elevenlabs.io/v1/text-to-speech/WruJHDAF1bWs03CrrotN",
-      headers: {
-        accept: "audio/mpeg",
-        "xi-api-key": process.env.REACT_APP_ELEVEN_API_KEY,
-        "Content-Type": "application/json",
-      },
-      data: {
-        text: inputText,
-      },
-      responseType: "arraybuffer" as ResponseType,
-    };
-    const speechDetails = await axios.request(options);
-    const data = speechDetails.data;
-    const blob = new Blob([data], { type: "audio/mpeg" });
-    const url = URL.createObjectURL(blob);
-    setAudioUrl(url);
-  };
-
-  React.useEffect(() => {
-    const audioPlayer = document.getElementById("audio");
-    if (audioPlayer) {
-      (audioPlayer as HTMLAudioElement).load();
-      (audioPlayer as HTMLAudioElement).play();
-    }
-  }, [audioUrl]);
-
-  const onAudioPlay = () => {
-    const videoPlayer = document.getElementById("talk-video");
-    if (videoPlayer) {
-      (videoPlayer as HTMLVideoElement).play();
-      setVideoPlaying(true);
-    }
-  };
-
-  const onAudioPause = () => {
-    const videoPlayer = document.getElementById("talk-video");
-    if (videoPlayer) {
-      (videoPlayer as HTMLVideoElement).pause();
-      setVideoPlaying(false);
-    }
-  };
-
   return (
     <div className="App">
-      <center>
-        <video
-          id="talk-video"
-          height="150"
-          loop={true}
-          playsInline
-          poster={"/assets/bubbie4.png"}
-        >
-          <source src="/assets/bubbie4.mp4" />
-        </video>
-      </center>
-      {audioUrl && (
-        <audio autoPlay id="audio" onPlay={onAudioPlay} onPause={onAudioPause}>
-          <source id="audio-src" src={audioUrl} type="audio/mpeg"></source>
-        </audio>
-      )}
+      <Avatar id="avatar" audioUrl={audioUrl} />
       <div className="messages" id="messages-box">
         {messages.map((message, index) => (
           <div

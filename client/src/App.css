@@ -19,7 +19,7 @@ input {
 
 .message-bubble {
   border-radius: 10px;
-  background-color: rgba(193, 193, 239, 0.52);
+  background-color: rgba(244, 222, 141, 0.52);
   padding: 8px;
   align-self: flex-end;
   max-width: 60%;
@@ -27,7 +27,7 @@ input {
 }
 
 .ai-message-bubble {
-  background-color: rgba(193, 239, 227, 0.52);
+  background-color: rgba(85, 164, 230, 0.52);
   align-self: flex-start;
 }
 
