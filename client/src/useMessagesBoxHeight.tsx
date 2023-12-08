@@ -13,7 +13,7 @@ export const useMessagesBoxHeight = () => {
     const footerHeight = footer ? footer.offsetHeight : 0;
     document.documentElement.style.setProperty(
       "--messages-height",
-      `${windowHeight - (videoHeight + footerHeight + 28)}px`
+      `${windowHeight - (videoHeight + footerHeight + 38)}px`
     );
   }, [windowHeight]);
 };
