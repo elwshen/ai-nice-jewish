@@ -37,26 +37,6 @@ app.get("/chat/:messages", async (req, res) => {
   return res.json(reply);
 });
 
-const textToSpeechUrl = async (inputText) => {
-  const options = {
-    method: "POST",
-    url: "https://api.elevenlabs.io/v1/text-to-speech/yvjrr0Fzm43WIUe1caEj",
-    headers: {
-      accept: "audio/mpeg",
-      "xi-api-key": process.env.ELEVEN_API_KEY,
-      "Content-Type": "application/json",
-    },
-    data: {
-      text: inputText,
-    },
-    responseType: "arraybuffer",
-  };
-
-  const speechDetails = await axios.request(options);
-  const data = speechDetails.data;
-  return data;
-};
-
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
